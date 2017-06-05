@@ -5,6 +5,9 @@ import path from 'path';
 import botkit from 'botkit';
 import dotenv from 'dotenv';
 
+const yelp = require('yelp-fusion');
+
+
 dotenv.config({ silent: true });
 
 // initialize
@@ -34,6 +37,8 @@ const controller = botkit.slackbot({
   debug: false,
 });
 
+console.log(process.env.SLACK_BOT_TOKEN);
+
 // initialize slackbot
 const slackbot = controller.spawn({
   token: process.env.SLACK_BOT_TOKEN,
@@ -54,7 +59,26 @@ controller.setupWebserver(process.env.PORT || 3001, (err, webserver) => {
 controller.hears(['hello', 'hi', 'howdy'], ['direct_message', 'direct_mention', 'mention'], (bot, message) => {
   bot.reply(message, 'Hello there!');
 });
-
+controller.on('user_typing', (bot, message) => {
+  bot.reply(message, 'What ya writing?');
+});
+controller.hears(['hungry', 'food', 'restaurant'], ['direct_message', 'direct_mention', 'mention'], (bot, message) => {
+  bot.reply(message, 'I can recommend some food and restaurants for ya!');
+});
+let yelpClient;
+yelp.accessToken(process.env.YELP_CLIENT_ID, process.env.YELP_CLIENT_SECRET)
+  .then((res) => {
+    yelpClient = yelp.client(res.jsonBody.access_token);
+    console.log('got the client');
+    yelpClient.search({
+      term: 'Sushi',
+      location: 'hanover, nh',
+    }).then((response) => {
+      console.log(response.jsonBody.businesses[0].name);
+    }).catch((e) => {
+      console.log(e);
+    });
+  });
 // START THE SERVER
 // =============================================================================
 const port = process.env.PORT || 9090;
