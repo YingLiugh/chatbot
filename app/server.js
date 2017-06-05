@@ -63,22 +63,71 @@ controller.on('user_typing', (bot, message) => {
   bot.reply(message, 'What ya writing?');
 });
 controller.hears(['hungry', 'food', 'restaurant'], ['direct_message', 'direct_mention', 'mention'], (bot, message) => {
-  bot.reply(message, 'I can recommend some food and restaurants for ya!');
+  bot.reply(message, 'Do you want me to recommend some restaurants for ya?');
 });
-let yelpClient;
-yelp.accessToken(process.env.YELP_CLIENT_ID, process.env.YELP_CLIENT_SECRET)
-  .then((res) => {
-    yelpClient = yelp.client(res.jsonBody.access_token);
-    console.log('got the client');
-    yelpClient.search({
-      term: 'Sushi',
-      location: 'hanover, nh',
-    }).then((response) => {
-      console.log(response.jsonBody.businesses[0].name);
-    }).catch((e) => {
-      console.log(e);
+controller.hears(['ok', 'fine', 'alright', 'yes'], ['direct_message', 'direct_mention', 'mention'], (bot, message) => {
+  bot.reply(message, 'What type of food do you want?');
+});
+
+controller.hears(['sushi', 'japanese', 'asian'], ['direct_message', 'direct_mention', 'mention'], (bot, message) => {
+  bot.reply(message, 'This is what I found in Hanover.');
+  let yelpClient;
+  yelp.accessToken(process.env.YELP_CLIENT_ID, process.env.YELP_CLIENT_SECRET)
+    .then((res) => {
+      yelpClient = yelp.client(res.jsonBody.access_token);
+      yelpClient.search({
+        term: 'Sushi',
+        location: 'hanover, nh',
+      }).then((response) => {
+        const data = response.jsonBody;
+        data.businesses.forEach((business) => {
+          bot.reply(message, business.name);
+        });
+      }).catch((e) => {
+        console.log(e);
+      });
     });
-  });
+});
+controller.hears(['italian', 'pizza', 'spaghetti'], ['direct_message', 'direct_mention', 'mention'], (bot, message) => {
+  bot.reply(message, 'This is what I found in Hanover.');
+  let yelpClient;
+  yelp.accessToken(process.env.YELP_CLIENT_ID, process.env.YELP_CLIENT_SECRET)
+    .then((res) => {
+      yelpClient = yelp.client(res.jsonBody.access_token);
+      yelpClient.search({
+        term: 'pizza',
+        location: 'hanover, nh',
+      }).then((response) => {
+        const data = response.jsonBody;
+        data.businesses.forEach((business) => {
+          bot.reply(message, business.name);
+        });
+      }).catch((e) => {
+        console.log(e);
+      });
+    });
+});
+controller.hears(['indian', 'curry'], ['direct_message', 'direct_mention', 'mention'], (bot, message) => {
+  bot.reply(message, 'This is what I found in Hanover.');
+  let yelpClient;
+  yelp.accessToken(process.env.YELP_CLIENT_ID, process.env.YELP_CLIENT_SECRET)
+    .then((res) => {
+      yelpClient = yelp.client(res.jsonBody.access_token);
+      yelpClient.search({
+        term: 'curry',
+        location: 'hanover, nh',
+      }).then((response) => {
+        const data = response.jsonBody;
+        data.businesses.forEach((business) => {
+          bot.reply(message, business.name);
+        });
+      }).catch((e) => {
+        console.log(e);
+      });
+    });
+});
+
+
 // START THE SERVER
 // =============================================================================
 const port = process.env.PORT || 9090;
